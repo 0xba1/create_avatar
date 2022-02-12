@@ -12,7 +12,7 @@ class Home extends StatelessWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text('Create Avatar: Pixel Art'),
+        title: const Text('Create Avatar: Pixel Art'),
       ),
       body: GestureDetector(
         onTap: () {

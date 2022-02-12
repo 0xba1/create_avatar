@@ -20,9 +20,15 @@ class AvatarProvider extends ChangeNotifier {
     try {
       avatarSvgString = (await getAvatarSvgString());
       if (Platform.isAndroid) {
-        dirPath = (await getExternalStorageDirectory() as Directory).path;
-        String temp = dirPath.split('Android').first;
-        dirPath = '$temp/Download';
+        if (await Permission.storage.request().isGranted) {
+          dirPath = (await getExternalStorageDirectory() as Directory).path;
+          String temp = dirPath.split('Android').first;
+          dirPath = '$temp/Download';
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Please give permission to download file.')));
+          return;
+        }
       } else {
         if (await Permission.storage.request().isGranted) {
           dirPath = (await getDownloadsDirectory() as Directory).path;
