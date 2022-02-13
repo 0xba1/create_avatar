@@ -44,7 +44,7 @@ class AvatarProvider extends ChangeNotifier {
           .showSnackBar(const SnackBar(content: Text('Download failed!')));
       return;
     }
-    Uint8List rawPng = await svgToPng(context, avatarSvgString!);
+    Uint8List rawPng = await _svgToPng(context, avatarSvgString!);
     String uuid = const Uuid().v4();
     String filePath = '$dirPath/$uuid.png';
     File pngFile = File(filePath);
@@ -222,33 +222,33 @@ class AvatarProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Convert svg to raw png
+  Future<Uint8List> _svgToPng(BuildContext context, String svgString,
+      {int? svgWidth, int? svgHeight}) async {
+    DrawableRoot svgDrawableRoot = await svg.fromSvgString(svgString, 'svgKey');
+
+    // to have a nice rendering it is important to have the exact original height and width,
+    // the easier way to retrieve it is directly from the svg string
+    // but be careful, this is an ugly fix for a flutter_svg problem that works
+    // with my images
+
+    double width = 512;
+    double height = 512;
+
+    // Convert to ui.Picture
+    final picture = svgDrawableRoot.toPicture(size: Size(width, height));
+
+    // Convert to ui.Image. toImage() takes width and height as parameters
+    // you need to find the best size to suit your needs and take into account the screen DPI
+    final image = await picture.toImage(width.toInt(), height.toInt());
+    ByteData bytes = (await image.toByteData(format: ImageByteFormat.png))!;
+
+    return bytes.buffer.asUint8List();
+  }
+
   @override
   void dispose() {
     _httpClient.close();
     super.dispose();
   }
-}
-
-// Convert svg to raw png
-Future<Uint8List> svgToPng(BuildContext context, String svgString,
-    {int? svgWidth, int? svgHeight}) async {
-  DrawableRoot svgDrawableRoot = await svg.fromSvgString(svgString, 'svgKey');
-
-  // to have a nice rendering it is important to have the exact original height and width,
-  // the easier way to retrieve it is directly from the svg string
-  // but be careful, this is an ugly fix for a flutter_svg problem that works
-  // with my images
-
-  double width = 512;
-  double height = 512;
-
-  // Convert to ui.Picture
-  final picture = svgDrawableRoot.toPicture(size: Size(width, height));
-
-  // Convert to ui.Image. toImage() takes width and height as parameters
-  // you need to find the best size to suit your needs and take into account the screen DPI
-  final image = await picture.toImage(width.toInt(), height.toInt());
-  ByteData bytes = (await image.toByteData(format: ImageByteFormat.png))!;
-
-  return bytes.buffer.asUint8List();
 }
