@@ -223,8 +223,7 @@ class AvatarProvider extends ChangeNotifier {
   }
 
   // Convert svg to raw png
-  Future<Uint8List> _svgToPng(BuildContext context, String svgString,
-      {int? svgWidth, int? svgHeight}) async {
+  Future<Uint8List> _svgToPng(BuildContext context, String svgString) async {
     DrawableRoot svgDrawableRoot = await svg.fromSvgString(svgString, 'svgKey');
 
     // to have a nice rendering it is important to have the exact original height and width,
